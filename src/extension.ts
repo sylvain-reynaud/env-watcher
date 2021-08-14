@@ -77,8 +77,8 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 		const envVars = await getEnvVarsFromDotEnvFile();
 		// match ${VAR} ${VAR:} ${VAR:DEFAULT} ${VAR:-} ${VAR:=} ${VAR:-DEFAULT} ${VAR:=DEFAULT}
-		// https://regex101.com/r/GYgG8L/1 
-		const regEx = /\$\{?([A-Za-z0-9_.-]+)(?::([^\\}]*))?\}?/g;
+		// https://regex101.com/r/GYgG8L/2
+		const regEx = /\$\{([A-Za-z0-9_-]+)(?::([^\\}]*))?\}/g;
 		const text = activeEditor.document.getText();
 		let match;
 		while ((match = regEx.exec(text))) {
