@@ -97,7 +97,7 @@ export function activate(context: vscode.ExtensionContext) {
 			const envVarDecoratorType = vscode.window.createTextEditorDecorationType({
 				after: {
 					contentText: "\t" + matchedEnvVar,
-					color: "green",
+					color: matchedEnvVar == 'undefined' ? "orange" : "green",
 				},
 				// isWholeLine: true,
 			});
