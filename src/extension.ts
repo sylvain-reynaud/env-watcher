@@ -13,13 +13,27 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let activeEditor = vscode.window.activeTextEditor;
 
+	const envVarDecoratorType = vscode.window.createTextEditorDecorationType({
+		overviewRulerColor: 'blue',
+		overviewRulerLane: vscode.OverviewRulerLane.Right,
+		light: {
+			// this color will be used in light color themes
+			color: 'darkblue'
+		},
+		dark: {
+			// this color will be used in dark color themes
+			color: 'lightblue'
+		},
+		// isWholeLine: true,
+	});
+
 	function parseDotEnvText (text: string): {} {
 		const NEWLINE = '\n'
 		const RE_INI_KEY_VAL = /^\s*([\w.-]+)\s*=\s*(.*)?\s*$/
 		const RE_NEWLINES = /\\n/g
 		const NEWLINES_MATCH = /\r\n|\n|\r/
 
-		// TODO: demander au prof de ts
+		// TODO: demander au prof de ts pour enlever le any
 		const envVars: any = {};
 
 		// convert Buffers before splitting into lines and processing
@@ -50,13 +64,17 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 
 				envVars[key] = val;
-			} else {
-				console.log(`did not match key and value when parsing line ${idx + 1}: ${line}`)
 			}
+			// else {
+			// 	console.log(`did not match key and value when parsing line ${idx + 1}: ${line}`)
+			// }
 		})
 		return envVars
 	}
 
+	/**
+	 * @returns {object} Object containing the environment variables
+	 */
 	async function getEnvVarsFromDotEnvFile() {
 		// vscode.workspace.findFiles('**/.env', '**/.env.local', '**/.env.local.dist', '**/.env.dist').then(files => {
 		const files = await vscode.workspace.findFiles('**/.env')
@@ -68,20 +86,6 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 		return {};
 	}
-
-	const envVarDecoratorType = vscode.window.createTextEditorDecorationType({
-		overviewRulerColor: 'blue',
-		overviewRulerLane: vscode.OverviewRulerLane.Right,
-		light: {
-			// this color will be used in light color themes
-			color: 'darkblue'
-		},
-		dark: {
-			// this color will be used in dark color themes
-			color: 'lightblue'
-		},
-		// isWholeLine: true,
-	});
 
 	async function updateDecorations() {
 		if (!activeEditor) {
@@ -96,7 +100,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const decorations = [];
 		
 		while ((match = regEx.exec(text))) {
-			console.log('match:', match)
+			// console.log('match:', match)
 
 			// find the env var in the envVars array
 			// TODO: demander au prof de ts
