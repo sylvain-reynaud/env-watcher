@@ -5,8 +5,6 @@ import * as vscode from 'vscode';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-
-	
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activatedconsole.log('Congratulations, your extension "env-watcher" is now active!');
 	console.log('Congratulations, your extension "env-watcher" is now active!');
@@ -71,6 +69,20 @@ export function activate(context: vscode.ExtensionContext) {
 		return {};
 	}
 
+	const envVarDecoratorType = vscode.window.createTextEditorDecorationType({
+		overviewRulerColor: 'blue',
+		overviewRulerLane: vscode.OverviewRulerLane.Right,
+		light: {
+			// this color will be used in light color themes
+			color: 'darkblue'
+		},
+		dark: {
+			// this color will be used in dark color themes
+			color: 'lightblue'
+		},
+		// isWholeLine: true,
+	});
+
 	async function updateDecorations() {
 		if (!activeEditor) {
 			return;
@@ -81,53 +93,58 @@ export function activate(context: vscode.ExtensionContext) {
 		const regEx = /\$\{([A-Za-z0-9_-]+)(?::([^\\}]*))?\}/g;
 		const text = activeEditor.document.getText();
 		let match;
+		const decorations = [];
+		
 		while ((match = regEx.exec(text))) {
 			console.log('match:', match)
 
 			// find the env var in the envVars array
 			// TODO: demander au prof de ts
 			//@ts-ignore
-			//@ts-ignore
-			let matchedEnvVar: string = envVars[match[1]] || 'undefined';
+			let matchedValue: string = envVars[match[1]] || 'undefined';
 
 			const startPos = activeEditor.document.positionAt(match.index);
 			const endPos = activeEditor.document.positionAt(match.index + match[0].length);
-			const decoration = { range: new vscode.Range(startPos, endPos), hoverMessage: 'Environment variable **' + match[0] + '**' };
-
-			const envVarDecoratorType = vscode.window.createTextEditorDecorationType({
-				after: {
-					contentText: "\t" + matchedEnvVar,
-					color: matchedEnvVar == 'undefined' ? "orange" : "green",
-				},
-				// isWholeLine: true,
-			});
-			activeEditor.setDecorations(envVarDecoratorType, [decoration]);
+			const decoration = {
+				range: new vscode.Range(startPos, endPos),
+				hoverMessage: '**' + match[1] + '**=*' + matchedValue + '*',
+				renderOptions: {
+					after: {
+						contentText: "\t" + matchedValue,
+						color: matchedValue == 'undefined' ? "orange" : "green",
+					},
+				}
+			};
+			decorations.push(decoration);
 		}
+		activeEditor.setDecorations(envVarDecoratorType, decorations);
 		
 	}
 
-	function triggerUpdateDecorations() {
+	function triggerUpdateDecorations(activeEditor: vscode.TextEditor) {
 		if (timeout) {
 			clearTimeout(timeout);
 			timeout = undefined;
+			activeEditor.setDecorations(envVarDecoratorType, []);
+
 		}
 		timeout = setTimeout(updateDecorations, 500);
 	}
 
 	if (activeEditor) {
-		triggerUpdateDecorations();
+		triggerUpdateDecorations(activeEditor);
 	}
 
 	vscode.window.onDidChangeActiveTextEditor(editor => {
 		activeEditor = editor;
 		if (editor) {
-			triggerUpdateDecorations();
+			triggerUpdateDecorations(editor);
 		}
 	}, null, context.subscriptions);
 
 	vscode.workspace.onDidChangeTextDocument(event => {
 		if (activeEditor && event.document === activeEditor.document) {
-			triggerUpdateDecorations();
+			triggerUpdateDecorations(activeEditor);
 		}
 	}, null, context.subscriptions);
 	
