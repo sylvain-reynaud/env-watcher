@@ -1,6 +1,17 @@
 # env-watcher README
 
-This is the README for your extension "env-watcher". After writing up a brief description, we recommend including the following sections.
+VSCode extension shows the value of the environment variable next to the variable in the opened file.
+
+Environment variable values are read in `.env` file found in the opened folder.
+
+Recognize all environment variables except `$VAR` in files :
+
+- `${VARIABLE}`
+- `${VARIABLE:}`
+- `${VARIABLE:-}`
+- `${VARIABLE:-blabla}`
+- `${VARIABLE:=}`
+- `${VARIABLE:=blabla}`
 
 ## Features
 
@@ -34,6 +45,21 @@ Calling out known issues can help limit users opening duplicate issues against y
 ## Release Notes
 
 Users appreciate release notes as you update your extension.
+
+### 0.1.0
+
+Recognize all environment variables except `$VAR` in files :
+
+- `${VARIABLE}`
+- `${VARIABLE:}`
+- `${VARIABLE:-}`
+- `${VARIABLE:-blabla}`
+- `${VARIABLE:=}`
+- `${VARIABLE:=blabla}`
+
+Show the value of the environment variable next to the variable in the opened file.
+
+Environment variables values are read in `.env` file.
 
 ### 1.0.0
 
