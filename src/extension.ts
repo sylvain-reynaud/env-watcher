@@ -76,7 +76,9 @@ export function activate(context: vscode.ExtensionContext) {
 			return;
 		}
 		const envVars = await getEnvVarsFromDotEnvFile();
-		const regEx = /\$\{([A-Za-z0-9_.-]+)(?::([^\\}]*))?\}/g;
+		// match ${VAR} ${VAR:} ${VAR:DEFAULT} ${VAR:-} ${VAR:=} ${VAR:-DEFAULT} ${VAR:=DEFAULT}
+		// https://regex101.com/r/GYgG8L/1 
+		const regEx = /\$\{?([A-Za-z0-9_.-]+)(?::([^\\}]*))?\}?/g;
 		const text = activeEditor.document.getText();
 		let match;
 		while ((match = regEx.exec(text))) {
@@ -84,13 +86,9 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// find the env var in the envVars array
 			// TODO: demander au prof de ts
-			console.log('envVars:', envVars)
-			console.log('match[0]:', match[0])
 			//@ts-ignore
-			console.log('envVars[match[0]]:', envVars[match[1]])
 			//@ts-ignore
 			let matchedEnvVar: string = envVars[match[1]] || 'undefined';
-			console.log('matchedEnvVar:', matchedEnvVar)
 
 			const startPos = activeEditor.document.positionAt(match.index);
 			const endPos = activeEditor.document.positionAt(match.index + match[0].length);
